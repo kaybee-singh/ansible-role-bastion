@@ -1,0 +1,157 @@
+---
+# tasks file for ansible-role-galaxy
+- name: Register the system
+  community.general.redhat_subscription:
+    state: present
+    username: "{ username }"
+    password: "{ password }"
+- name: install the packages
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - httpd
+    - bind
+    - bind-utils
+    - haproxy
+- name: Creating the named.conf file
+  ansible.builtin.template:
+    src: named.j2
+    dest: /etc/named.conf
+- name: Creating forward zone
+  ansible.builtin.template:
+    src: forward.j2
+    dest: /var/named/forward
+    group: named
+- name: Creating the reverse file
+  ansible.builtin.template:
+    src: reverse.j2
+    dest: /var/named/reverse
+    group: named
+- name: Starting the named service
+  systemd:
+    name: named
+    state: started
+    enabled: true
+- name: Ensure the ocpinstall directory exists
+  ansible.builtin.file:
+    path: ~/ocpinstall
+    state: directory
+    mode: '0755'
+- name: Create the installconfig file
+  ansible.builtin.template:
+    src: install-config.j2 
+    dest: ~/ocpinstall/install-config.yaml 
+- name: Create the haproxy config file
+  ansible.builtin.template:
+    src: haproxy.j2 
+    dest: /etc/haproxy/haproxy.cfg
+- name: Stopping the firewalld service
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: false
+- name: Enabling the selinux module
+  ansible.posix.seboolean:
+   name: haproxy_connect_any
+   state: true
+   persistent: true
+- name: Starting the named service
+  systemd:
+    name: haproxy
+    state: started
+    enabled: true
+- name: Create directory for client downloads
+  ansible.builtin.file:
+    path: /root/ocp-binaries
+    state: directory
+    mode: '0755'
+
+- name: Download OpenShift client
+  ansible.builtin.get_url:
+    url: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
+    dest: /root/ocp-binaries/openshift-client-linux.tar.gz
+
+- name: Download OpenShift installer
+  ansible.builtin.get_url:
+    url: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-install-linux.tar.gz
+    dest: /root/ocp-binaries/openshift-install-linux.tar.gz
+
+- name: Extract OpenShift client to /usr/bin
+  ansible.builtin.unarchive:
+    src: /root/ocp-binaries/openshift-client-linux.tar.gz
+    dest: /usr/bin
+    remote_src: yes
+
+- name: Extract OpenShift installer to /usr/bin
+  ansible.builtin.unarchive:
+    src: /root/ocp-binaries/openshift-install-linux.tar.gz
+    dest: /usr/bin
+    remote_src: yes
+
+- name: Verify oc version
+  ansible.builtin.command: oc version
+  register: oc_ver
+  changed_when: false
+
+- name: Display oc version
+  ansible.builtin.debug:
+    var: oc_ver.stdout_lines
+
+- name: Verify kubectl version
+  ansible.builtin.command: kubectl version --client
+  register: kubectl_ver
+  changed_when: false
+
+- name: Display kubectl version
+  ansible.builtin.debug:
+    var: kubectl_ver.stdout_lines
+
+- name: Verify openshift-install version
+  ansible.builtin.command: openshift-install version
+  register: installer_ver
+  changed_when: false
+
+- name: Display openshift-install version
+  ansible.builtin.debug:
+    var: installer_ver.stdout_lines
+
+- name: Create manifests
+  ansible.builtin.command: openshift-install create manifests --dir=/root/ocpinstall
+  args:
+    chdir: /root/ocpinstall
+
+- name: Create ignition-configs
+  ansible.builtin.command: openshift-install create ignition-configs --dir=/root/ocpinstall
+  args:
+    chdir: /root/ocpinstall
+
+- name: Create Apache ignition directory
+  ansible.builtin.file:
+    path: /var/www/html/ocp4
+    state: directory
+    mode: '0755'
+
+- name: Copy ignition files to Apache directory
+  ansible.builtin.copy:
+    src: /root/ocpinstall/
+    dest: /var/www/html/ocp4/
+    remote_src: yes
+    mode: '0644'
+    owner: root
+    group: root
+
+- name: Restore SELinux context
+  ansible.builtin.command: restorecon -RFv /var/www/html/
+
+- name: Change Apache port to 8080
+  ansible.builtin.replace:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^Listen 80'
+    replace: 'Listen 8080'
+
+- name: Enable and start Apache
+  ansible.builtin.service:
+    name: httpd
+    enabled: true
+    state: started

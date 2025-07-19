@@ -1,0 +1,27 @@
+$TTL 1D
+@       IN SOA  root.{{ base_domain }}. {{ nodes.bastion.hostname }}.{{ base_domain }}. (
+                                        0       ; serial
+                                        1D      ; refresh
+                                        1H      ; retry
+                                        1W      ; expire
+                                        3H )    ; minimum
+@       IN      NS      {{ nodes.bastion.hostname }}.{{ base_domain }}.
+@       IN      PTR     {{ base_domain }}.
+
+
+{{ nodes.bastion.ip }}     IN      PTR     {{ nodes.bastion.hostname }}.{{ base_domain }}.
+{{ nodes.bastion.ip }}     IN      PTR     {{ nodes.bastion.hostname }}.{{ cluster_name }}.{{ base_domain }}.
+
+
+{{ nodes.bastion.ip }}     IN      PTR     api.{{ cluster_name }}.{{ base_domain }}.
+{{ nodes.bastion.ip }}     IN      PTR     api-int.{{ cluster_name }}.{{ base_domain }}.
+
+
+{{ nodes.bootstrap.ip }}     IN      PTR     {{ nodes.bootstrap.hostname }}.{{ cluster_name }}.{{ base_domain }}.
+{{ nodes.masters[0].ip }}     IN      PTR     {{ nodes.masters[0].hostname }}.{{ cluster_name }}.{{ base_domain }}.
+{{ nodes.masters[1].ip }}     IN      PTR     {{ nodes.masters[1].hostname }}.{{ cluster_name }}.{{ base_domain }}.
+{{ nodes.masters[2].ip }}     IN      PTR     {{ nodes.masters[2].hostname }}.{{ cluster_name }}.{{ base_domain }}.
+{{ nodes.workers[0].ip }}     IN      PTR     {{ nodes.workers[0].hostname }}.{{ cluster_name }}.{{ base_domain }}.
+{{ nodes.workers[1].ip }}     IN      PTR     {{ nodes.workers[1].hostname }}.{{ cluster_name }}.{{ base_domain }}.
+{{ nodes.workers[2].ip }}     IN      PTR     {{ nodes.workers[2].hostname }}.{{ cluster_name }}.{{ base_domain }}.
+
