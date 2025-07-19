@@ -149,7 +149,11 @@
     path: /etc/httpd/conf/httpd.conf
     regexp: '^Listen 80'
     replace: 'Listen 8080'
-
+- name: Change group ownership to apache in /var/www/html
+  ansible.builtin.file:
+    path: /var/www/html
+    recurse: yes
+    group: apache
 - name: Enable and start Apache
   ansible.builtin.service:
     name: httpd
