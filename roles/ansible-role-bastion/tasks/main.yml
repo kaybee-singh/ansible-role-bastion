@@ -1,0 +1,63 @@
+---
+# tasks file for ansible-role-galaxy
+- name: Register the system
+  community.general.redhat_subscription:
+    state: present
+    username: "{ username }"
+    password: "{ password }"
+- name: install the packages
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - httpd
+    - bind
+    - bind-utils
+    - haproxy
+- name: Creating the named.conf file
+  ansible.builtin.template:
+    src: named.j2
+    dest: /etc/named.conf
+- name: Creating forward zone
+  ansible.builtin.template:
+    src: forward.j2
+    dest: /var/named/forward
+    group: named
+- name: Creating the reverse file
+  ansible.builtin.template:
+    src: reverse.j2
+    dest: /var/named/reverse
+    group: named
+- name: Starting the named service
+  systemd:
+    name: named
+    state: started
+    enabled: true
+- name: Ensure the ocpinstall directory exists
+  ansible.builtin.file:
+    path: ~/ocpinstall
+    state: directory
+    mode: '0755'
+- name: Create the installconfig file
+  ansible.builtin.template:
+    src: install-config.j2 
+    dest: ~/ocpinstall/install-config.yaml 
+- name: Create the haproxy config file
+  ansible.builtin.template:
+    src: haproxy.j2 
+    dest: /etc/haproxy/haproxy.cfg
+- name: Stopping the firewalld service
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: false
+- name: Enabling the selinux module
+  ansible.posix.seboolean:
+   name: haproxy_connect_any
+   state: true
+   persistent: true
+- name: Starting the named service
+  systemd:
+    name: haproxy
+    state: started
+    enabled: true

@@ -1,0 +1,30 @@
+---
+# vars file for ansible-role-galaxy
+cluster_name: ocp
+base_domain: example.com
+network_address: 192.168.100.0/24
+gateway: 192.168.1.1
+dns: 192.168.1.1
+nodes:
+  bastion:
+    hostname: bastion
+    ip: 192.168.122.230
+    network_address: 192.168.122.0
+    network_address_with_suffix: 192.168.122.0/24
+  bootstrap:
+    hostname: bootstrap
+    ip: 192.168.1.150
+  masters:
+    - hostname: master-1
+      ip: 192.168.1.151
+    - hostname: master-2
+      ip: 192.168.1.152
+    - hostname: master-3
+      ip: 192.168.1.153
+  workers:
+    - hostname: worker-1
+      ip: 192.168.1.154
+    - hostname: worker-2
+      ip: 192.168.1.155
+    - hostname: worker-3
+      ip: 192.168.1.156

@@ -1,0 +1,13 @@
+---
+- name: Configure Bastion
+  hosts: all
+  become: yes
+  vars_prompt:
+    - name: username
+      prompt: "Enter the rhsm username"
+      private: no
+    - name: password
+      prompt: "Enter the rhsm password"
+      private: yes
+  roles:
+    - role: ansible-role-galaxy-test
