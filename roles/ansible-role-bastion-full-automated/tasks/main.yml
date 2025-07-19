@@ -132,14 +132,8 @@
     state: directory
     mode: '0755'
 
-- name: Copy ignition files to Apache directory
-  ansible.builtin.copy:
-    src: /root/ocpinstall/
-    dest: /var/www/html/ocp4/
-    remote_src: yes
-    mode: '0644'
-    owner: root
-    group: root
+- name: Copy .ign files to Apache directory using shell
+  ansible.builtin.shell: cp -f /root/ocpinstall/*.ign /var/www/html/ocp4/
 
 - name: Restore SELinux context
   ansible.builtin.command: restorecon -RFv /var/www/html/
