@@ -3,8 +3,8 @@
 - name: Register the system
   community.general.redhat_subscription:
     state: present
-    username: "{ username }"
-    password: "{ password }"
+    username: "{{ username }}"
+    password: "{{ password }}"
 - name: install the packages
   dnf:
     name: "{{ item }}"
