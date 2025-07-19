@@ -10,4 +10,4 @@
       prompt: "Enter the rhsm password"
       private: yes
   roles:
-    - role: ansible-role-galaxy-test
+    - role: ansible-role-bastion-half-automated
