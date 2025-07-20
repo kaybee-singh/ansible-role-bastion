@@ -3,8 +3,8 @@
 cluster_name: ocp
 base_domain: example.com
 network_address: 192.168.100.0/24
-gateway: 192.168.1.122.1
-dns: 192.168.1.122.1
+gateway: 192.168.122.1
+dns: 192.168.122.1
 nodes:
   bastion:
     hostname: bastion
@@ -13,18 +13,18 @@ nodes:
     network_address_with_suffix: 192.168.122.0/24
   bootstrap:
     hostname: bootstrap
-    ip: 192.168.1.122.150
+    ip: 192.168.122.150
   masters:
     - hostname: master-1
-      ip: 192.168.1.122.151
+      ip: 192.168.122.151
     - hostname: master-2
-      ip: 192.168.1.122.152
+      ip: 192.168.122.152
     - hostname: master-3
-      ip: 192.168.1.122.153
+      ip: 192.168.122.153
   workers:
     - hostname: worker-1
-      ip: 192.168.1.122.154
+      ip: 192.168.122.154
     - hostname: worker-2
-      ip: 192.168.1.122.155
+      ip: 192.168.122.155
     - hostname: worker-3
-      ip: 192.168.1.122.156
+      ip: 192.168.122.156
